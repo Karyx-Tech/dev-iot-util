@@ -33,7 +33,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.BOT_GH_TOKEN }}
         run: |
-          python3 scripts/sync.py '${{ github.event.pull_request.title }}'
+          python3 ci-cd/sync.py '${{ github.event.pull_request.title }}'
 
       - name: Post-sync cleanup
         if: always()
