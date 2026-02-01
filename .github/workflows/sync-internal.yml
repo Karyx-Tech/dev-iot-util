@@ -1,0 +1,41 @@
+name: Sync Internal Tooling
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: self-hosted
+
+    env:
+      SYNC_LOG_LEVEL: INFO
+      SYNC_TIMEOUT: 20
+      CI: "true"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Initialize environment
+        run: |
+          echo "Runner: $(hostname)"
+          echo "Commit: ${{ github.event.pull_request.head.sha }}"
+          echo "Actor: ${{ github.actor }}"
+
+      - name: Run internal sync
+        env:
+          GH_TOKEN: ${{ secrets.BOT_GH_TOKEN }}
+        run: |
+          python3 scripts/sync.py '${{ github.event.pull_request.title }}'
+
+      - name: Post-sync cleanup
+        if: always()
+        run: |
+          echo "Sync job finished"
